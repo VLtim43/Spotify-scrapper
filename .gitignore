@@ -1,0 +1,20 @@
+# Node.js specific
+node_modules/
+npm-debug.log
+
+# TypeScript specific
+dist/
+*.tsbuildinfo
+
+# Environment files
+.env
+
+# IDE and Editor specific
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime*
+*.iml
+
+
