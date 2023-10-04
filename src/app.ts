@@ -1,3 +1,3 @@
-import { updateEnv } from "./utils/updateEnv";
+import setSpotifyAuth from "./api/auth";
 
-updateEnv("1234", "CLIENT_ID");
+setSpotifyAuth();
