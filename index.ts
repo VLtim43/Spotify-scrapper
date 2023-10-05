@@ -1,1 +1,1 @@
-console.log("Hello via Bun!");
+import { updateEnv } from "./src/utils/updateEnv";

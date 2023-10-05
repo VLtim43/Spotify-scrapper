@@ -1,5 +1,5 @@
 {
-  "name": "bun-spotify-scrapper",
+  "name": "new-spotify-scrapper",
   "module": "index.ts",
   "type": "module",
   "scripts": {

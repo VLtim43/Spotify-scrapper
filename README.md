@@ -1,4 +1,4 @@
-# bun-spotify-scrapper
+# new-spotify-scrapper
 
 To install dependencies:
 
