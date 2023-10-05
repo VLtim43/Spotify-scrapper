@@ -1,9 +1,12 @@
-import SpotifyWebApi from "spotify-web-api-node";
-import express, { Request, Response } from "express";
 import { updateEnv } from "../utils/updateEnv";
-import "dotenv/config";
 
-export default async function setSpotifyAuth() {
+import dotenv from "dotenv";
+dotenv.config();
+
+import SpotifyWebApi from "spotify-web-api-node";
+import express from "express";
+
+export const setSpotifyAuth = async () => {
   try {
     const scopes = [
       "ugc-image-upload",
@@ -35,14 +38,14 @@ export default async function setSpotifyAuth() {
 
     const app = express();
 
-    app.get("/login", (req: Request, res: Response) => {
+    app.get("/login", (req, res) => {
       //@ts-ignore
       res.redirect(spotifyApi.createAuthorizeURL(scopes));
     });
-
-    app.get("/callback", async (req: Request, res: Response) => {
-      const error = req.query.error as string;
-      const code = req.query.code as string;
+    //@ts-ignore
+    app.get("/callback", (req, res) => {
+      const error = req.query.error;
+      const code = req.query.code;
 
       if (error) {
         console.error("Callback Error:", error);
@@ -50,51 +53,55 @@ export default async function setSpotifyAuth() {
         return;
       }
 
-      try {
-        const data = await spotifyApi.authorizationCodeGrant(code);
-        const { access_token, refresh_token, expires_in } = data.body;
+      spotifyApi
+        //@ts-ignore
 
-        spotifyApi.setAccessToken(access_token);
-        spotifyApi.setRefreshToken(refresh_token);
+        .authorizationCodeGrant(code)
+        //@ts-ignore
+        .then((data) => {
+          const access_token = data.body["access_token"];
+          const refresh_token = data.body["refresh_token"];
+          const expires_in = data.body["expires_in"];
 
-        console.log("access_token:", access_token);
-        console.log("refresh_token:", refresh_token);
-        res.send("Success! You can now close the window.");
+          spotifyApi.setAccessToken(access_token);
+          spotifyApi.setRefreshToken(refresh_token);
 
-        console.log(
-          `Successfully retrieved access token. Expires in ${expires_in} s.`
-        );
+          console.log("access_token:", access_token);
+          console.log("refresh_token:", refresh_token);
+          res.send("Success! You can now close the window.");
 
-        updateEnv(access_token, "TOKEN");
+          console.log(
+            `Sucessfully retreived access token. Expires in ${expires_in} s.`
+          );
 
-        setInterval(async () => {
-          try {
+          updateEnv(access_token, "TOKEN");
+
+          setInterval(async () => {
             const data = await spotifyApi.refreshAccessToken();
-            const new_access_token = data.body["access_token"];
+            const access_token = data.body["access_token"];
 
             console.log("The access token has been refreshed!");
-            console.log("access_token:", new_access_token);
-            spotifyApi.setAccessToken(new_access_token);
+            console.log("access_token:", access_token);
+            spotifyApi.setAccessToken(access_token);
 
-            updateEnv(new_access_token, "TOKEN");
-          } catch (refreshError) {
-            console.error("Error refreshing the access token:", refreshError);
-          }
-        }, (expires_in / 2) * 1000);
-      } catch (tokenError) {
-        console.error("Error getting Tokens:", tokenError);
-        res.send(`Error getting Tokens: ${tokenError}`);
-      }
+            updateEnv(access_token, "TOKEN");
+          }, (expires_in / 2) * 1000);
+        })
+        //@ts-ignore
+        .catch((error) => {
+          console.error("Error getting Tokens:", error);
+          res.send(`Error getting Tokens: ${error}`);
+        });
     });
 
-    app.listen(8888, () => {
+    app.listen(8888, () =>
       console.log(
         "HTTP Server up. Now go to http://localhost:8888/login in your browser."
-      );
-    });
-  } catch (setupError) {
-    console.error("Error in setSpotifyAuth:", setupError);
+      )
+    );
+  } catch (error) {
+    console.log(error);
   }
-}
+};
 
 setSpotifyAuth();
