@@ -1,5 +1,6 @@
 import inquirer from "inquirer";
-import { setSpotifyAuth } from "../api/auth";
+import { getPlaylists } from "../api/getPlaylists";
+import { writeJSONToFile } from "./saveJSON";
 
 export const mainInterface = async () => {
   // Initialize the main prompt
@@ -10,7 +11,6 @@ export const mainInterface = async () => {
         name: "option",
         message: `[ songs locally saved]`,
         choices: [
-          // { name: "Set Authenticaded user", value: "setUser" },
           { name: "Fetch songs", value: "fetchSavedSongs" },
           { name: "Quit", value: "quit" },
         ],
@@ -18,7 +18,9 @@ export const mainInterface = async () => {
     ]);
 
     if (answers.option === "fetchSavedSongs") {
-      setSpotifyAuth();
+      getPlaylists().then(({ playlistsObject }) => {
+        writeJSONToFile("playlists.json", playlistsObject);
+      });
     } else if (answers.option === "quit") {
       process.exit();
     }
