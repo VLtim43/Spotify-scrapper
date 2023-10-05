@@ -50,6 +50,18 @@ export const mainInterface = async () => {
         }
         break;
 
+      case "fetchSavedSongs":
+        try {
+          const { songObjects } = await getSavedSongs();
+          writeJSONToFile("savedsongs", songObjects);
+        } catch (error) {
+          console.error(
+            "An error occurred while fetching and saving songs:",
+            error
+          );
+        }
+        break;
+
       // case "showPlaylists":
       //   await showPlaylists();
       //   break;
