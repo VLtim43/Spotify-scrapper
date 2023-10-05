@@ -10,10 +10,23 @@ const ensureDirectoryExistence = (filePath: string) => {
   fs.mkdirSync(dirname);
 };
 
-export const writeJSONToFile = (
-  filename: string,
-  data: { name: string; id: string }[]
+export const writeJSONToFile = <T>(
+  type: "savedsongs" | "playlists",
+  data: T[]
 ) => {
+  let filename;
+
+  switch (type) {
+    case "savedsongs":
+      filename = "savedsongs.json";
+      break;
+    case "playlists":
+      filename = "playlists.json";
+      break;
+    default:
+      throw new Error("Invalid type provided to writeJSONToFile.");
+  }
+
   const filePath = path.join(__dirname, "../../data", filename);
 
   // Ensure the directory exists

@@ -34,7 +34,10 @@ export const getPlaylists = async () => {
 
   console.log(`Fetched ${fetchedCount} playlists out of ${total}`);
 
-  const playlistsObject = allPlaylists.map(({ name, id }) => ({ name, id }));
-
+  const playlistsObject = allPlaylists.map(({ name, id, tracks }) => ({
+    name,
+    id,
+    totalTracks: tracks.total,
+  }));
   return { playlistsObject };
 };
