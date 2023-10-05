@@ -1,1 +1,3 @@
-import { updateEnv } from "./src/utils/updateEnv";
+import { mainInterface } from "./src/interface/main";
+
+mainInterface();
