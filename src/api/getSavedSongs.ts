@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import SpotifyWebApi from "spotify-web-api-node";
 import { getArtistGenres } from "./getGenres";
+import { writeJSONToFile } from "../interface/saveJSON";
 
 const spotifyApi = new SpotifyWebApi({
   clientId: process.env.CLIENT_ID,
@@ -18,7 +19,7 @@ export const getSavedSongs = async () => {
   const allTracks = [];
   let offset = 0;
 
-  console.log("----------- FETCHING SAVED SONGS ------------");
+  console.log("------ FETCHING SAVED SONGS ------");
 
   const { body: initialBody } = await spotifyApi.getMySavedTracks({
     limit: 50,
@@ -55,7 +56,7 @@ export const getSavedSongs = async () => {
 
       const addedAt = new Date(addedAtRaw).toISOString();
       const imageUrl = images[0]?.url;
-      const genres = await getArtistGenres(artistId);
+      // const genres = await getArtistGenres(artistId);
 
       return {
         artist: artistName,
@@ -66,10 +67,11 @@ export const getSavedSongs = async () => {
         isDownloaded: false,
         url: null,
         imageUrl,
-        genres,
       };
     })
   );
+
+  writeJSONToFile("playlistsongs", songObjects);
 
   return { songObjects, fetchedCount };
 };

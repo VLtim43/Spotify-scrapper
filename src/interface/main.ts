@@ -3,7 +3,8 @@ import { getPlaylists } from "../api/getPlaylists";
 // Assuming you have a getSavedSongs function similar to getPlaylists
 import { getSavedSongs } from "../api/getSavedSongs";
 import { writeJSONToFile } from "./saveJSON";
-import { showPlaylists } from "./showPlaylists";
+import { getSongsFromPlaylist } from "../api/getSongsFromPlaylist";
+import { getSongsFromAllPlaylists } from "./getSongsFromAllPlaylists";
 
 export const mainInterface = async () => {
   // Initialize the main prompt
@@ -14,8 +15,13 @@ export const mainInterface = async () => {
         name: "option",
         message: `[ ]`,
         choices: [
-          { name: "Fetch playlists", value: "fetchPlaylists" },
-          { name: "Fetch saved songs", value: "fetchSavedSongs" },
+          { name: "Fetch Playlists", value: "fetchPlaylists" },
+          { name: "Fetch Saved Songs", value: "fetchSavedSongs" },
+          {
+            name: "Fetch Songs from all Playlists",
+            value: "fetchSongsFromAllPlaylists",
+          },
+
           // {
           //   name: "Show playlists",
           //   value: "showPlaylists",
@@ -40,8 +46,7 @@ export const mainInterface = async () => {
 
       case "fetchSavedSongs":
         try {
-          const { songObjects } = await getSavedSongs();
-          writeJSONToFile("savedsongs", songObjects);
+          await getSavedSongs();
         } catch (error) {
           console.error(
             "An error occurred while fetching and saving songs:",
@@ -50,10 +55,9 @@ export const mainInterface = async () => {
         }
         break;
 
-      case "fetchSavedSongs":
+      case "fetchSongsFromAllPlaylists":
         try {
-          const { songObjects } = await getSavedSongs();
-          writeJSONToFile("savedsongs", songObjects);
+          await getSongsFromAllPlaylists();
         } catch (error) {
           console.error(
             "An error occurred while fetching and saving songs:",

@@ -1,54 +1,82 @@
-// import dotenv from "dotenv";
-// dotenv.config();
-// import SpotifyWebApi from "spotify-web-api-node";
+import dotenv from "dotenv";
+dotenv.config();
+import SpotifyWebApi from "spotify-web-api-node";
+import { getArtistGenres } from "./getGenres";
+import { writeJSONToFile } from "../interface/saveJSON";
 
-// const spotifyApi = new SpotifyWebApi({
-//   clientId: process.env.CLIENT_ID,
-//   clientSecret: process.env.CLIENT_SECRET,
-// });
+const spotifyApi = new SpotifyWebApi({
+  clientId: process.env.CLIENT_ID,
+  clientSecret: process.env.CLIENT_SECRET,
+});
 
-// if (process.env.TOKEN) {
-//   spotifyApi.setAccessToken(process.env.TOKEN);
-// } else {
-//   console.error("Access token is undefined");
-// }
+if (process.env.TOKEN) {
+  spotifyApi.setAccessToken(process.env.TOKEN);
+} else {
+  console.error("Access token is undefined");
+}
 
-// export const getSongsFromPlaylist = async (playlistId: string) => {
-//   const allTracks = [];
-//   let offset = 0;
-//   let fetchedCount = 0;
-//   let total = 0;
+export const getSongsFromPlaylist = async (
+  playlistId: string,
+  playlistName: string
+) => {
+  const allTracks = [];
+  let offset = 0;
 
-//   do {
-//     const {
-//       body: { items, limit, total: currentTotal },
-//     } = await spotifyApi.getPlaylistTracks(playlistId, {
-//       limit: 50,
-//       offset,
-//     });
+  const { body: initialBody } = await spotifyApi.getPlaylistTracks(playlistId, {
+    limit: 50,
+  });
+  const total = initialBody.total;
+  let fetchedCount = 0;
 
-//     if (total === 0) total = currentTotal;
+  do {
+    const { body } = await spotifyApi.getPlaylistTracks(playlistId, {
+      limit: 50,
+      offset,
+    });
 
-//     allTracks.push(...items);
-//     offset += limit;
-//     fetchedCount += items.length;
-//     if (fetchedCount % 150 === 0) {
-//       console.log(`Fetched ${fetchedCount} songs out of ${total}`);
-//     }
-//   } while (fetchedCount < total);
+    allTracks.push(...body.items);
+    offset += body.limit;
+    fetchedCount += body.items.length;
 
-//   console.log(`Fetched ${fetchedCount} tracks out of ${total}`);
+    // if (fetchedCount % 15 === 0) {
+    //   console.log(`Fetched ${fetchedCount} songs out of ${total}`);
+    // }
+  } while (fetchedCount < total);
 
-//   // Extract relevant data from tracks
-//   const tracksObject = allTracks.map(({ track }) => ({
-//     name: track?.name,
-//     id: track?.id,
-//     durationMs: track?.duration_ms,
-//     artist: track?.artists[0].name,
-//   }));
+  const songObjects = await Promise.all(
+    allTracks.map(async (fetchedTrack) => {
+      if (!fetchedTrack.track) {
+        return null;
+      }
 
-//   return { tracksObject };
-// };
+      const {
+        added_at: addedAtRaw,
+        track: {
+          name,
+          id: spotifyId,
+          album: { images },
+          artists: [{ name: artistName, id: artistId }],
+        },
+      } = fetchedTrack;
 
-// // Example usage:
-// // getSongsFromPlaylist("0VTt6WHFSKg9PHIFI0lOss");
+      const addedAt = new Date(addedAtRaw).toISOString();
+      const imageUrl = images[0]?.url;
+      const genres = await getArtistGenres(artistId);
+
+      return {
+        artist: artistName,
+        name,
+        spotifyId,
+        addedAt,
+        isUrl: false,
+        isDownloaded: false,
+        url: null,
+        imageUrl,
+        genres,
+      };
+    })
+  );
+
+  writeJSONToFile("playlistsongs", songObjects, playlistName);
+  return { songObjects, fetchedCount };
+};
