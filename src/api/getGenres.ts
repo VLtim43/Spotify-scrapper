@@ -23,7 +23,10 @@ export const getArtistGenres = async (artist_id: string): Promise<string[]> => {
     } = await spotifyApi.getArtist(artist_id);
     return genres;
   } catch (error) {
-    console.error("Error retrieving artist genres:", error);
-    throw error;
+    console.error("Error retrieving artist genres:", error.message);
+    if (error.body) {
+      console.error("Detailed error:", JSON.stringify(error, null, 2));
+    }
+    return []; // Return an empty array on error
   }
 };
