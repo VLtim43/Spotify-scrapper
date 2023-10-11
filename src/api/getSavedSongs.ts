@@ -55,8 +55,8 @@ export const getSavedSongs = async () => {
 
       const addedAt = new Date(addedAtRaw).toISOString();
       const imageUrl = images[0]?.url;
-      const genres = await getArtistGenres(artistId);
-
+      // const genres = await getArtistGenres(artistId);
+      const genres = "";
       return {
         artist: artistName,
         name,

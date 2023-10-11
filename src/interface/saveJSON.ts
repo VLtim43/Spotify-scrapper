@@ -11,14 +11,21 @@ const ensureDirectoryExistence = (filePath: string) => {
 };
 
 export const writeJSONToFile = <T>(
-  type: "savedsongs" | "playlists",
-  data: T[]
+  type: "savedsongs" | "playlistsongs" | "playlists",
+  data: T[],
+  playlistname?: string
 ) => {
   let filename;
 
   switch (type) {
     case "savedsongs":
       filename = "savedsongs.json";
+      break;
+    case "playlistsongs":
+      if (!playlistname) {
+        throw new Error("Playlist name is required for 'playlistsongs' type.");
+      }
+      filename = `${playlistname}.json`;
       break;
     case "playlists":
       filename = "playlists.json";
@@ -32,6 +39,5 @@ export const writeJSONToFile = <T>(
   // Ensure the directory exists
   ensureDirectoryExistence(filePath);
 
-  // Write data to file
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf-8");
 };
