@@ -14,6 +14,11 @@ choose_option() {
     echo "quit"
 }
 
+handle_interrupt() {
+    echo "\nReceived interrupt. Exiting..."
+    exit 1
+}
+
 while true; do
     choice=$(choose_option | gum choose)
     case $choice in
