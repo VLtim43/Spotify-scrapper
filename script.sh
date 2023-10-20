@@ -1,10 +1,16 @@
 #!/bin/sh
 
+is_authenticated=0
+
 choose_option() {
-    echo "auth"
-    echo "funcA"
-    echo "funcB"
-    echo "funcC"
+    # Only show "auth" option if not authenticated
+    if [ $is_authenticated -eq 0 ]; then
+        echo "auth"
+    fi
+
+    echo "Get Saved Songs"
+    echo "Get Playlists"
+    echo "Get Songs from All Playlists"
     echo "quit"
 }
 
@@ -15,19 +21,19 @@ while true; do
         bun run src/api/spotifyAuth.ts
         if [ $? -eq 0 ]; then
             echo "Authentication successful. Proceeding to the next options..."
+            is_authenticated=1
         else
-            echo "Authentication failed. Exiting..."
-            exit 1
+            echo "Authentication failed. Exiting"
         fi
         ;;
-    "funcA")
-        bun run src/api/funcA
+    "Get Saved Songs")
+        bun run src/api/getSavedSongs.ts
         ;;
-    "funcB")
-        bun run src/api/funcB
+    "Get Playlists")
+        bun run src/api/getPlaylists.ts
         ;;
-    "funcC")
-        bun run src/api/funcC
+    "Get Songs from All Playlists")
+        bun run src/api/getAllSongsFromPlaylists.ts
         ;;
     "quit")
         echo "Exiting"

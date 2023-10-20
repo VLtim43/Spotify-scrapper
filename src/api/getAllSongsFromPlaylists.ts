@@ -1,8 +1,8 @@
 import fs from "fs";
 import path from "path";
-import { getSongsFromPlaylist } from "../api/getSongsFromPlaylist";
+import { getSongsFromPlaylist } from "./getSongsFromPlaylist";
 
-export const getSongsFromAllPlaylists = async () => {
+export const getAllSongsFromPlaylists = async () => {
   const filePath = path.join(__dirname, "../../data/playlists.json");
 
   // Check if the file exists
@@ -20,3 +20,5 @@ export const getSongsFromAllPlaylists = async () => {
     getSongsFromPlaylist(id, name);
   }
 };
+
+getAllSongsFromPlaylists();
