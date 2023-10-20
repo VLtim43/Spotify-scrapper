@@ -73,3 +73,5 @@ export const getSavedSongs = async () => {
   writeJSONToFile("savedsongs", songObjects);
   return { songObjects, fetchedCount };
 };
+
+getSavedSongs();

@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 import SpotifyWebApi from "spotify-web-api-node";
+import { writeJSONToFile } from "../interface/saveJSON";
 
 const spotifyApi = new SpotifyWebApi({
   clientId: process.env.CLIENT_ID,
@@ -39,5 +40,8 @@ export const getPlaylists = async () => {
     id,
     totalTracks: tracks.total,
   }));
-  return { playlistsObject };
+
+  writeJSONToFile("playlists", playlistsObject);
 };
+
+getPlaylists();
