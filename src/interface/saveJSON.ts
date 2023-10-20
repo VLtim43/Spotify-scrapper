@@ -3,11 +3,10 @@ import path from "path";
 
 const ensureDirectoryExistence = (filePath: string) => {
   const dirname = path.dirname(filePath);
-  if (fs.existsSync(dirname)) {
-    return true;
+  if (!fs.existsSync(dirname)) {
+    ensureDirectoryExistence(dirname); // recursively ensure parent directories exist
+    fs.mkdirSync(dirname);
   }
-  ensureDirectoryExistence(dirname);
-  fs.mkdirSync(dirname);
 };
 
 export const writeJSONToFile = <T>(
@@ -16,6 +15,7 @@ export const writeJSONToFile = <T>(
   playlistname?: string
 ) => {
   let filename;
+  let subdir = ""; // default no subdirectory
 
   switch (type) {
     case "savedsongs":
@@ -26,6 +26,7 @@ export const writeJSONToFile = <T>(
         throw new Error("Playlist name is required for 'playlistsongs' type.");
       }
       filename = `${playlistname}.json`;
+      subdir = "playlists"; // set the subdirectory for this case
       break;
     case "playlists":
       filename = "playlists.json";
@@ -34,7 +35,7 @@ export const writeJSONToFile = <T>(
       throw new Error("Invalid type provided to writeJSONToFile.");
   }
 
-  const filePath = path.join(__dirname, "../../data", filename);
+  const filePath = path.join(__dirname, "../../data", subdir, filename);
 
   // Ensure the directory exists
   ensureDirectoryExistence(filePath);
